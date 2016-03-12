@@ -1,0 +1,8 @@
+---
+- name: APT_KEY | Add packagecloud.io key
+  apt_key: url=https://packagecloud.io/gpg.key state=present
+- name: APT | Install apt-https
+  apt: name=apt-transport-https state=present
+- name: GET_URL | Set deb and deb-src list
+  get_url: url=https://packagecloud.io/install/repositories/{{ packagecloud_user }}/{{ packagecloud_repo }}/config_file.list?os={{ ansible_distribution }}&dist={{ ansible_distribution_release }} dest=/etc/apt/sources.list.d/{{ packagecloud_user }}_{{ packagecloud_repo }}.list
+  notify: apt update

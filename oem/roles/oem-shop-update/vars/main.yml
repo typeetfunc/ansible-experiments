@@ -1,0 +1,4 @@
+---
+home_dir: /home/webservice
+limit_params_dir: "{{ home_dir }}/limit_params"
+common_limit_params_file: "{{ limit_params_dir }}/common"

@@ -1,0 +1,43 @@
+---
+- name: TEMPLATE | Set configs
+  template: src={{ item.template }} dest={{ item.dest }}
+  with_items:
+    - {template: nginx-site.j2, dest: "/home/webservice/nginx/{{ project_path }}"}
+    - {template: proxy_params, dest: /home/webservice/nginx/proxy_params}
+  notify: reload nginx
+- name: FILE | mkdir limit_params folder
+  file: path=/home/webservice/limit_params state=directory
+  notify: reload nginx
+- name: TEMPLATE | add limit_params configs
+  template: src=common_limit_params.j2 dest="{{ common_limit_params_file }}"
+  notify: reload nginx
+- name: FILE | drop default
+  file: path={{ item }} state=absent
+  with_items: 
+    - /home/webservice/nginx/myproject-client
+    - /home/webservice/uwsgi/my.ini
+- name: TEMPLATE | Set configs
+  template: src={{ item.template }} dest={{ item.dest }}
+  with_items:   
+    - {template: uwsgi-app, dest: "/home/webservice/uwsgi/{{ project_path }}.ini"}
+    - {template: EnvConfig.pm.j2, dest: "/home/webservice/{{ project_path }}/app/OEM/EnvConfig.pm"}
+  notify: reload uwsgi
+- name: GIT | Fix depends
+  git: repo={{ item.repo }} dest=/home/webservice/{{ item.dest }} clone=yes accept_hostkey=yes
+  with_items:
+    - repo: 'https://github.com/typeetfunc/pef-log.git'
+      dest: pef-log
+    - repo: 'https://github.com/typeetfunc/pef-front-psgi-dist.git'
+      dest: 'pef-front-psgi-dist'
+  notify: reload uwsgi
+- name: GIT | install admin
+  git: repo=git@git.corp:alef/oem-shop-admin.git version={{ branch }} dest=/home/webservice/admin clone=yes accept_hostkey=yes
+  notify: reload uwsgi
+- name: TEMPLATE | Set configs
+  template: src={{ item.template }} dest={{ item.dest }}
+  with_items:   
+    - {template: uwsgi-app-admin.j2, dest: "/home/webservice/uwsgi/admin.ini"}
+    - {template: EnvConfig.pm.j2, dest: "/home/webservice/admin/app/OEM/EnvConfig.pm"}
+  notify: reload uwsgi
+- name: CRON | set cronjob for sync
+  cron: name="sync categories and products" job="perl /home/webservice/admin/bin/sync_cats_and_prods_name.pl"

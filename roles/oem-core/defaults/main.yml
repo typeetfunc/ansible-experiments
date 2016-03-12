@@ -1,0 +1,13 @@
+---
+pg_version: 9.1
+pg_repo: ''
+user: "application"
+packagecloud_user: brackets-arrows
+packagecloud_repo: pef-package
+usermanage_usersdb:
+    application:
+        comment: Application user
+        state: present
+        shell: /bin/bash
+        keys:
+            - key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDcMpC+QsA7D89zD+6FXYjI/NoHt3M5k6i8CPWpS3NrI+RwfNsqkQz3fi+vWvnsVmBlTvHRrH5bsZSPsc6axAvj6IwAeYG//k2I2Da95o/jg8t9q1nfxoyQy5r4YgXjuZcwxcfZFm/VC+l6WCwW7rZvQgIcxz0e3YkZdMgie2iWHv5YsrR0LhRtCFgUuncpK3GOk/wUdxcZHZlNIBu0IOVdXP6LuuWWk7EDZxQnfYmhLs5dzZPQ6fMEEkrgE/JARsKoVpZBRz+6mPdtuuOzbsUEe40VQq+qpRKHCXVlRc/22BE5prq5GDzDhZdMCEUVA2tTmUnlSd/fs+5V7QrK/d95 andrei@andrei-VPCCB4S1R

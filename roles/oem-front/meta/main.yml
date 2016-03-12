@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  author: alef
+  description: oem front install
+  company: your company (optional)
+  license: license (GPLv2, CC-BY, etc)
+  min_ansible_version: 1.2
+  platforms:
+  - name: Debian
+    versions:
+      - wheezy
+dependencies:
+    - zzet.postgresql
+    - ansible-usermanage
+    - apache2
+    - nginx
+    - create_db
+    - repo
+    - depends
+    - pg_restore
+    - fluentd

@@ -1,0 +1,14 @@
+---
+- name: apt update
+  apt: update_cache=yes
+- name: install apt app depedns
+  apt: name={{ item }} state=present
+  with_items: "{{app_depends_from_apt}}"
+- name: Install git
+  apt: name=git state=present
+- name: GIT | Install github depends
+  git: repo={{ item.repo }} accept_hostkey=yes  dest=/home/{{ user }}/{{ item.dest }} force=yes
+  with_items: "{{app_depends_from_git}}"  
+- name: FILE | set priv for github depends
+  file: dest=/home/{{ user }}/{{ item.dest }} owner={{ user }} group={{ user }} recurse=yes mode=0755 
+  with_items: "{{app_depends_from_git}}"

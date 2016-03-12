@@ -1,0 +1,7 @@
+---
+- name: TEMPLATE | Add AppFrontConfig
+  template: src=EnvConfig.pm.j2 dest=/home/{{ user }}/{{ item }}/{{ app_front_conf_path }} owner=webservice group=webservice mode=0755
+  with_items: 
+    - "{{ project_path }}"
+    - admin
+  notify: restart uwsgi

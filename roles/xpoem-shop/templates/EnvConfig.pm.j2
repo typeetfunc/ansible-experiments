@@ -1,0 +1,15 @@
+package OEM::EnvConfig;
+
+sub core_endpoint () { "http://{{ nginx_upstream_ip }}"  }
+sub id_shop   ()     { {{ id_shop }} }
+sub id_product_for_shop { {% if products is iterable  %} [{{ products | join(", ") }}] {% else %} {{ products }} {% endif %} }
+{% if product_key is defined %}
+sub product_key () { return {
+	{% for id, key in product_key.iteritems() %}
+    	{{ id }} => {{ key }},
+	{% endfor %}
+};  }
+{% endif %}
+sub log_config_file () { "./dev-log-config.yaml" }
+1;
+

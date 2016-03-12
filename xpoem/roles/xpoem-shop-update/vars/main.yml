@@ -1,0 +1,5 @@
+---
+home_dir: /home/webservice
+nginx_dir: "{{ home_dir }}/nginx" 
+nginx_conf_dir: "{{ nginx_dir }}/conf" 
+nginx_limit_conf: "{{ nginx_dir }}/limit_conf"

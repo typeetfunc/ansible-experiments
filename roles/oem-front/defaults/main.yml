@@ -1,0 +1,22 @@
+---
+pg_version: 9.1
+pg_repo: ''
+dbname: nls
+dbuser: winshopfront
+dbpassword: q60cr9EYwjTTYwkfev2j5RgCI
+server_root: /site/public_html
+server_name: front-winshopcore.com
+perl_startup_path: site/mod_perl_startup.pl
+apache_include_path: /site/apache_virthost_handlers_ssl
+user: webservice
+packagecloud_user: brackets-arrows
+packagecloud_repo: pef-package
+graylog_ip: 209.133.212.66
+td_tag: oem-front.app.devel
+usermanage_usersdb:
+    webservice:
+        comment: Application user
+        state: present
+        shell: /bin/bash
+        keys:
+            - key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDcMpC+QsA7D89zD+6FXYjI/NoHt3M5k6i8CPWpS3NrI+RwfNsqkQz3fi+vWvnsVmBlTvHRrH5bsZSPsc6axAvj6IwAeYG//k2I2Da95o/jg8t9q1nfxoyQy5r4YgXjuZcwxcfZFm/VC+l6WCwW7rZvQgIcxz0e3YkZdMgie2iWHv5YsrR0LhRtCFgUuncpK3GOk/wUdxcZHZlNIBu0IOVdXP6LuuWWk7EDZxQnfYmhLs5dzZPQ6fMEEkrgE/JARsKoVpZBRz+6mPdtuuOzbsUEe40VQq+qpRKHCXVlRc/22BE5prq5GDzDhZdMCEUVA2tTmUnlSd/fs+5V7QrK/d95 andrei@andrei-VPCCB4S1R

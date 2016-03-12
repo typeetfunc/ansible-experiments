@@ -1,0 +1,18 @@
+<source>
+  type udp
+  port 5160
+  bind 127.0.0.1
+  tag  {{ td_tag }}
+  body_size_limit 1m
+  format json
+</source>
+
+<match  {{ td_tag }}>
+  type copy
+  <store>
+    type gelf
+    host {{ graylog_ip }}
+    port {{ graylog_port }}
+    flush_interval 5s
+  </store>
+</match>

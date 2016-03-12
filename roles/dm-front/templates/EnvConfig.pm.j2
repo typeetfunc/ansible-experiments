@@ -1,0 +1,5 @@
+package My::EnvConfig;
+
+sub filtered_ip_to_dummy () { "{% if filter_ip is defined and filter_ip %}1{% endif %}" }
+
+1;

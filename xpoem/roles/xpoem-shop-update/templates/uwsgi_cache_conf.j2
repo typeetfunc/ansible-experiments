@@ -1,0 +1,4 @@
+uwsgi_cache pages;
+uwsgi_cache_key $request_uri;
+uwsgi_ignore_headers Expires Cache-Control Set-Cookie;
+uwsgi_cache_valid 20m;

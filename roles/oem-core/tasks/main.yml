@@ -1,0 +1,3 @@
+---
+- name: FILE | Create log path
+  file: path=/home/{{ user }}/log state=directory owner={{ user }} group={{ user }}

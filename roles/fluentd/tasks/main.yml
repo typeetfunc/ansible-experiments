@@ -1,0 +1,13 @@
+---
+- name: APT | Install fluentd packages
+  apt: name=td-agent=2.2.0-0 state=present
+- name: SHELL | Install gem to embeded
+  shell: td-agent-gem install {{ item }}
+  with_items:
+      - gelf
+- name: TEMPLATE | set config fluentd
+  template: src={{ td_agent_conf }} dest=/etc/td-agent/td-agent.conf force=yes
+  notify: restart td-agent
+- name: GET_URL | install plugin for gelf
+  get_url: url=https://raw.githubusercontent.com/pef-secure/fluent-plugin-gelf/master/lib/fluent/plugin/out_gelf.rb dest=/etc/td-agent/plugin/out_gelf.rb mode=0755 force=yes
+  notify: restart td-agent

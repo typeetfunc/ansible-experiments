@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: alef
+  description: oem core install
+  company: your company (optional)
+  license: license (GPLv2, CC-BY, etc)
+  min_ansible_version: 1.2
+  platforms:
+  - name: Debian
+    versions:
+      - wheezy
+dependencies:
+    #- zzet.postgresql
+    #- ansible-usermanage
+    #- create_db
+    #- repo
+    #- depends
+    - fluentd

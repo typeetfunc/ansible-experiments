@@ -1,0 +1,174 @@
+server {
+  listen 80;
+  access_log /var/log/nginx/access.log;
+  set $upstream_host "{{ nginx_upstream_host }}";
+  set $upstream_ip "http://{{ nginx_upstream_ip }}";
+###################################################
+#проксирование на ядро
+###################################################
+  #ажакс ядра
+  location ~ ^/ajax {    
+    proxy_pass $upstream_ip;
+  }
+  location ~ ^/app {
+    proxy_pass $upstream_ip;    
+  }
+  #статика ядра
+  location /front {    
+    proxy_pass $upstream_ip;
+  }
+  location /captchas {    
+    proxy_pass $upstream_ip;
+  }
+  location /files {    
+    proxy_pass $upstream_ip;
+  }
+###################################################
+#Роуты к ядру
+###################################################
+  location /my {
+    rewrite ^ /appMy break;
+    
+    proxy_pass $upstream_ip;
+  }
+  location /license.png {
+    rewrite ^/license\.png$ /getGetLicenseData/png-1 break;
+    
+    proxy_pass $upstream_ip;
+  }
+  location /package/order {
+    rewrite ^ /appPrepareShipping break;
+    
+    proxy_pass $upstream_ip;
+  }
+  location /getIsoLink/ {
+    
+    proxy_pass $upstream_ip;
+  }
+  location /passwd/new {
+    rewrite ^ /appPasswordNew break;
+    
+    proxy_pass $upstream_ip;
+  }
+  location /invoice/report {
+    if ($request_method = POST) {
+      rewrite ^ /submitInvoiceReport break;
+    }
+    if ($request_method = GET) {
+      rewrite ^ /appInvoiceReport break;
+    }
+    
+    proxy_pass $upstream_ip;
+  }
+  location /payment {
+    rewrite ^ /appPayment break;
+    
+    proxy_pass $upstream_ip;
+  }
+  location ~ ^/invoice/done {
+    rewrite ^/invoice/done/(.+) /appInvoiceDone/$1 break;
+    
+    proxy_pass $upstream_ip;
+  }
+  location ~ ^/getNotifyPmSystemNew/ {
+    
+    proxy_pass $upstream_ip;
+  }
+  location /logout {
+    rewrite ^ /submitLogout break;
+    
+    proxy_pass $upstream_ip;
+  }
+  location /feedback {
+    rewrite ^ /appCreateTicket break;
+    
+    proxy_pass $upstream_ip;
+  }
+  location /activation {
+    rewrite ^ /appActivation break;
+    
+    proxy_pass $upstream_ip;
+  }
+  location /burn {
+    rewrite ^ /appBurn break;
+    
+    proxy_pass $upstream_ip;
+  }
+###################################################
+#support download 
+###################################################
+  location /support/files/ {
+    rewrite ^/support/(.+) /$1 break;
+    expires max;
+    proxy_read_timeout 900s;
+    proxy_set_header Host $host;    
+    proxy_pass https://{{ support_ip }};
+  }
+###################################################
+#abba
+###################################################
+  location /start {
+    proxy_pass http://{{ abba_ip }};
+  }
+  location /complete {
+    proxy_pass http://{{ abba_ip }};
+  }
+  location /v1/abba.js {
+    expires max;
+    proxy_pass http://{{ abba_ip }};
+  }
+###################################################
+#локальная обработка
+###################################################
+  #статику отдаем
+  root /home/webservice/{{ project_path }}/www-static;
+  location =/favicon.ico { }
+
+  location /min_styles/ {
+    expires max;
+  }
+  location /min_scripts/ {
+    expires max;
+  }
+  location /fonts/ {
+    expires max;
+  }
+  location /site/images/ {
+    rewrite ^/site/images/(.+) /images/$1 break;
+    expires max;
+  }
+  location /images/ {
+    expires max;
+  }
+  location /admin {
+    root /home/webservice/admin/www-static;
+    location /admin/styles/ { 
+      rewrite ^/admin/styles/(.+) /styles/$1 break;
+    }
+    location /admin/scripts/ {
+      rewrite ^/admin/scripts/(.+) /scripts/$1 break; 
+    }
+    location /admin/fonts/ {
+      rewrite ^/admin/fonts/(.+) /fonts/$1 break;
+    }
+    location /admin/images/ {
+      rewrite ^/admin/images/(.+) /images/$1 break;
+    }
+    location /admin {
+      include uwsgi_params;
+      uwsgi_pass unix:///run/uwsgi/app/admin/socket;
+      uwsgi_modifier1 5;  
+    }
+  }
+
+  location /site/iso/ { }
+  location /styles/ {}
+  location /scripts/ { }
+  location /pages/ { }
+  location /files/ { }
+  location / {
+    include uwsgi_params;
+    uwsgi_pass unix:///run/uwsgi/app/{{ project_path }}/socket;
+    uwsgi_modifier1 5;
+  }
+}

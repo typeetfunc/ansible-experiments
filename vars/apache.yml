@@ -1,0 +1,61 @@
+---
+apache_listen_port: 8080
+apache_create_vhosts: true,
+apache_remove_default_vhost: false,
+apache_vhosts_filename: "{{ project_path }}"
+apache_vhosts:
+    - servername: "{{ apache_servername }}",
+      documentroot: /home/{{ user }}/{{ project_path }}/{{ server_root }}
+apache_packages:
+  - apache2
+  - apache2-mpm-prefork
+  - apache2-utils
+  - libapache2-mod-rpaf
+  - libapache2-mod-perl2
+  - apache2-mpm-itk
+apache_mods_enabled:
+  - alias.conf
+  - autoindex.conf
+  - mime.load
+  - setenvif.conf
+  - alias.load
+  - autoindex.load
+  - negotiation.conf
+  - setenvif.load
+  - apreq.load
+  - cgi.load
+  - negotiation.load
+  - ssl.conf
+  - auth_basic.load
+  - deflate.conf
+  - perl.load
+  - ssl.load
+  - authn_file.load
+  - deflate.load
+  - reqtimeout.conf
+  - status.conf
+  - authz_default.load
+  - dir.conf
+  - reqtimeout.load
+  - status.load
+  - authz_groupfile.load
+  - dir.load
+  - rewrite.load
+  - authz_host.load
+  - env.load
+  - rpaf.conf
+  - rpaf.load
+  - authz_user.load
+  - mime.conf
+extra_parameters: |
+    <IfModule mpm_itk_module>
+         AssignUserID webservice webservice
+    </IfModule>
+    RewriteEngine On
+    RewriteLog /home/{{ user }}/log/rewrite.log
+    PerlOptions +ParseHeaders
+    PerlRequire /home/{{ user }}/{{ project_path }}/{{ perl_startup_path }}
+    ErrorLog /home/{{ user }}/log/winshopcore-front_error.log
+    LogLevel debug
+    CustomLog /home/{{ user }}/log/access.log combined
+    {{ apache_extra_rows }}

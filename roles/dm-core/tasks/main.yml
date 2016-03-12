@@ -1,0 +1,5 @@
+---
+- name: FILE | Create log path
+  file: path=/home/{{ user }}/log state=directory owner={{ user }} group={{ user }}
+- name: SHELL | set cronjob file
+  shell: crontab /home/{{user}}/{{project_path}}/cronjobs

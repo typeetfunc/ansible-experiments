@@ -1,0 +1,31 @@
+---
+- name: TEMPLATE | Set configs
+  template: src={{ item.template }} dest={{ item.dest }}
+  with_items:
+    - {template: nginx-site.j2, dest: "/home/webservice/nginx/sites/{{ project_path }}"}
+    - {template: proxy_params.j2, dest: /home/webservice/nginx/conf/proxy_params}
+    - {template: proxy_cache.j2, dest: /home/webservice/nginx/conf/proxy_cache}
+    - {template: gzip_conf.j2, dest: /home/webservice/nginx/gzip_conf}
+    - {template: uwsgi_cache_conf.j2, dest: /home/webservice/nginx/uwsgi_cache_conf}
+    - {template: limit_params.j2, dest: "{{ nginx_conf_dir }}/limit_params"}
+    - {template: limit_conf.j2, dest: "{{ nginx_limit_conf }}"}
+  notify: reload nginx
+- name: FILE | drop default
+  file: path={{ item }} state=absent
+  with_items: 
+    - /home/webservice/nginx/myproject-client
+    - /home/webservice/uwsgi/my.ini
+- name: TEMPLATE | Set configs
+  template: src={{ item.template }} dest={{ item.dest }}
+  with_items:   
+    - {template: uwsgi-app, dest: "/home/webservice/uwsgi/{{ project_path }}.ini"}
+    - {template: EnvConfig.pm.j2, dest: "/home/webservice/{{ project_path }}/app/OEM/EnvConfig.pm"}
+  notify: reload uwsgi
+- name: GIT | Fix depends
+  git: repo={{ item.repo }} dest=/home/webservice/{{ item.dest }} force=yes clone=yes accept_hostkey=yes
+  with_items:
+    - repo: 'https://github.com/typeetfunc/pef-log.git'
+      dest: pef-log
+    - repo: 'https://github.com/typeetfunc/pef-front-psgi-dist.git'
+      dest: 'pef-front-psgi-dist'
+  notify: reload uwsgi

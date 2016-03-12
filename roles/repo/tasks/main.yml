@@ -1,0 +1,21 @@
+---
+- name: USER | Set priv for vars
+  user: name=www-data groups=webservice
+  when: vars_dir is defined
+- name: FILE | Set priv for vars
+  file: path=/home/{{ user }}/{{ item }}/{{ vars_dir }} state=directory recurse=yes mode=0777
+  with_items:
+    - "{{ project_path }}"
+    - admin
+- name: FILE | Set priv for vars
+  file: path=/home/{{ user }}/{{ project_path }}/{{ vars_dir }}/{{ item }} state=directory owner={{ user }} group=www-data mode=0777
+  with_items:
+    - cache 
+    - tt_cache
+    - log
+- name: FILE | Set priv for vars
+  file: path=/home/{{ user }}/admin/{{ vars_dir }}/{{ item }} state=directory owner={{ user }} group=www-data mode=0777
+  with_items:
+    - cache 
+    - tt_cache
+    - log

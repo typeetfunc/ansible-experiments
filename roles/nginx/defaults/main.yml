@@ -1,0 +1,8 @@
+---
+nginx_vhosts:
+    - name: "{{ project_path }}"
+      template: "{{ nginx_site_template }}"
+      enable: true
+    - name: default
+      delete: true
+nginx_package: nginx-full

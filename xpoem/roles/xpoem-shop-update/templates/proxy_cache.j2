@@ -1,0 +1,7 @@
+proxy_cache_path /var/cache/nginx levels= keys_zone=license_img:100m inactive=360m max_size=500M; 
+proxy_cache_min_uses 1;
+uwsgi_cache_path /var/cache/nginx levels= keys_zone=pages:100m inactive=360m max_size=500M;
+uwsgi_cache_min_uses 1;
+uwsgi_cache_methods GET HEAD;
+uwsgi_cache_bypass $cookie_auth;
+uwsgi_no_cache $cookie_auth;

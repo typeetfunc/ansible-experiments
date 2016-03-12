@@ -1,0 +1,3 @@
+---
+- name: TEMPLATE | Set template app
+  template: src=EnvConfig.pm.j2 dest=/home/{{user}}/{{project_path}}/conf/My/EnvConfig.pm owner={{ user }} group={{ user }}

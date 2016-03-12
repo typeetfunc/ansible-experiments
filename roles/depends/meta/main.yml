@@ -1,0 +1,14 @@
+---
+galaxy_info:
+  author: alef
+  description: depends install
+  company: your company (optional)
+
+  license: license (GPLv2, CC-BY, etc)
+  min_ansible_version: 1.2
+  platforms:
+  - name: Debian
+    versions:
+      - wheezy
+dependencies:
+    - {role: packagecloud, when: packagecloud_repo is defined and packagecloud_user is defined}

@@ -1,0 +1,74 @@
+---
+apache_listen_port: 8080
+apache_remove_default_vhost: true
+apache_vhosts_filename: "{{ project_path }}"
+apache_vhosts_template: roles/oem-front/templates/apache2_vhost.j2
+apache_root: /home/{{ user }}/{{ project_path }}{{ server_root }}
+apache_packages:
+  - apache2-utils
+  - libapache2-mod-rpaf
+  - libapache2-mod-perl2
+  - apache2-mpm-itk
+  - libapreq2
+  - libapache2-mod-apreq2
+apache_mods_enabled:
+  - mime
+  - alias
+  - autoindex
+  - negotiation
+  - setenvif
+  - apreq
+  - cgi
+  - ssl
+  - auth_basic
+  - deflate
+  - perl
+  - authn_file
+  - reqtimeout
+  - status
+  - authz_default
+  - authz_groupfile
+  - dir
+  - rewrite
+  - authz_host
+  - env
+  - authz_user
+app_depends_from_apt:
+    - libapache2-mod-perl2
+    - libapache2-request-perl
+    - liburi-perl
+    - libtime-duration-parse-perl
+    - libwww-perl
+    - libhttp-message-perl
+    - libtypes-serialiser-perl=1.0-1
+    - libjson-xs-perl=3.010-2
+    - libjson-perl=2.90-1
+    - libtemplate-alloy-perl=1.020-1
+    - liblist-moreutils-perl
+    - libmldbm-perl
+    - libyaml-libyaml-perl
+    - libregexp-common-perl
+    - libcache-fastmmap-perl
+    - libgd-gd2-perl
+    - libgd-securityimage-perl
+    - libxml-simple-perl
+    - libdbix-connector-perl
+    - libmime-lite-perl
+    - libdbi-perl
+    - libhttp-cookies-perl
+    - libcrypt-ssleay-perl
+    - libdbd-pg-perl
+    - libexception-class-perl
+    - libgeo-ipfree-perl
+    - libmldbm-sync-perl
+    - libdigest-crc-perl
+    - libhtml-htmldoc-perl=0.10-1
+app_depends_from_git:
+    - repo: https://github.com/typeetfunc/pef-log.git
+      dest: pef-log
+git_config:
+    name: alef
+    email: alef@whoisdrwho.net
+nginx_worker_processes: 4
+nginx_root: /home/{{ user }}/{{ project_path }}{{ server_root }}
+nginx_site_template: roles/oem-front/templates/nginx_site.j2

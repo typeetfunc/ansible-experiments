@@ -1,0 +1,19 @@
+---
+- name: GIT | clone repo
+  git: repo={{ repo }} dest=/home/webservice/{{ project_path }} version={{ branch }} force=yes clone=yes accept_hostkey=yes
+- name: FILE | Drop bad depends
+  file: path={{ item }} state=absent
+  with_items:
+    - /home/webservice/pef-log
+    - /home/webservice/pef-front-psgi-dist
+  when: init
+- name: SHELL | Dump db
+  shell: psql -f /home/webservice/{{ project_path }}/{{ item }}.sql --single-transaction webservice webservice
+  with_items: 
+    - scheme
+    - data
+- name: FILE | start webservers
+  file: path=/home/webservice/{{ item }}-restart state=touch
+  with_items:
+    - nginx
+    - uwsgi

@@ -1,0 +1,51 @@
+---
+app_depends_from_apt:
+    - liburi-perl
+    - libtime-duration-parse-perl
+    - libwww-perl
+    - libhttp-message-perl
+    - libtypes-serialiser-perl=1.0-1
+    - libjson-xs-perl=3.010-2
+    - libjson-perl=2.90-1
+    - libtemplate-alloy-perl=1.020-1
+    - liblist-moreutils-perl
+    - libmldbm-perl
+    - libyaml-libyaml-perl
+    - libregexp-common-perl
+    - libmldbm-sync-perl
+    - libcache-fastmmap-perl
+    - libgd-gd2-perl
+    - libgd-securityimage-perl
+    - libxml-simple-perl
+    - libdbix-connector-perl
+    - libmime-lite-perl
+    - libdbi-perl
+    - libhttp-cookies-perl
+    - libcrypt-ssleay-perl
+    - libdbd-pg-perl
+    - libexception-class-perl
+    - libyaml-libyaml-perl
+    - libsql-abstract-perl
+    - libhash-flatten-perl
+    - libhtml-lint-perl
+    - libdatetime-perl
+    - liblocale-po-perl
+    - libgeo-ipfree-perl
+app_depends_from_git:
+    - repo: https://github.com/typeetfunc/pef-front-psgi-dist.git
+      dest: pef-front-psgi-dist
+    - repo: https://github.com/typeetfunc/pef-log.git
+      dest: pef-log
+    - repo: https://github.com/pef-secure/dbix-struct.git
+      dest: dbix-struct
+nginx_user: "www-data"
+nginx_worker_processes: 4
+nginx_root: /home/{{ user }}/{{ project_path }}/www-static
+nginx_root_admin: /home/{{ user }}/admin/www-static
+nginx_proxy_params: proxy_params.j2
+uwsgi_apps: 
+    - {template: roles/oem-shop/templates/uwsgi-app-site.j2, name: "{{ project_path }}"}
+    - {template: roles/oem-shop/templates/uwsgi-app-admin.j2, name: admin}
+nginx_site_template: roles/oem-shop/templates/nginx-site.j2
+nginx_conf_template: roles/oem-shop/templates/nginx-conf.j2
+nginx_proxy_params: roles/oem-shop/templates/proxy_params.j2

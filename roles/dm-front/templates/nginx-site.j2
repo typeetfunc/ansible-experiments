@@ -1,0 +1,46 @@
+# reserve 1MB under the name 'proxied' to track uploads
+upload_progress proxied 1m;
+
+server {
+  listen 80;
+  index index.html index.htm;
+  client_max_body_size 100m;
+  root /home/webservice/{{ project_path }}/www-static;
+  location =/favicon.ico {}
+  location /css/ {}
+  location /jss/ {}
+  location /fonts/ {}
+  location /images/ {}
+  location /img/ {}
+  location /query-sender/ {}
+  location /term/ {}
+  location /styles/ {}
+  location /captchas/ {}
+  location /html/ {}
+
+  location / {
+    include uwsgi_params;
+    uwsgi_pass  unix:///run/uwsgi/app/{{ project_path }}/socket;
+    uwsgi_modifier1 5;
+    track_uploads proxied 30s;    
+  }
+
+  # support
+  location /support/files/ {
+    rewrite ^/support/(.+) /$1 break;
+    expires max;
+    proxy_read_timeout 900s;
+    proxy_pass https://{{ support_ip }};
+  }
+
+  location ~ /\. {
+    deny all;
+  }
+
+  location ^~ /progress {
+    upload_progress_jsonp_parameter callback;
+    upload_progress_jsonp_output;
+    # report uploads tracked in the 'proxied' zone
+    report_uploads proxied;
+  }
+}

@@ -1,0 +1,16 @@
+package OEM::EnvConfig;
+
+sub core_endpoint () { "http{% if not non_ssl %}s{% endif %}://{{ nginx_upstream_ip }}" }
+sub core_endpoint_admin () { "http{% if not non_ssl %}s{% endif %}://{{ core_endpoint_admin }}" }
+sub id_shop   ()     { {{ id_shop }} }
+sub login_shop  ()   { '{{ login_shop }}' }
+sub password_shop () { '{{ password_shop }}' }
+
+sub log_config_file () { "./log-config.yaml" }
+
+{% if db_user is defined %}
+sub db_user () { "{{ db_user }}" }
+sub db_password () { "{{ db_password }}" }
+sub db_name () { "{{ db_name }}" }
+{% endif %}
+1;

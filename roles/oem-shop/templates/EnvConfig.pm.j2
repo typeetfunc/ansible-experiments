@@ -1,0 +1,10 @@
+package OEM::EnvConfig;
+
+sub core_endpoint () { "http://{{ nginx_upstream_ip }}" }
+sub core_endpoint_admin () { "http://{{ admin_core_endpoint }}" }
+sub id_shop   ()     { {{ id_shop }} }
+sub login_shop  ()   { '{{ login_shop }}' }
+sub password_shop () { '{{ password_shop }}' }
+
+sub log_config_file () { "./dev-log-config.yaml" }
+1;

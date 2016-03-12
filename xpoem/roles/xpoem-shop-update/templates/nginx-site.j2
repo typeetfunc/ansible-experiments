@@ -1,0 +1,180 @@
+server {
+  listen 80;
+  access_log /var/log/nginx/access.log;
+  set $upstream_host "{{ nginx_upstream_host }}";
+  set $upstream_ip "http{% if not non_ssl %}s{% endif %}://{{ nginx_upstream_ip }}";  
+###################################################
+#проксирование на ядро
+###################################################
+  #ажакс ядра
+  location ~ ^/ajax {
+   include {{ nginx_limit_conf }};
+   proxy_pass $upstream_ip;
+  }
+  location ~ ^/submit {  
+    include {{ nginx_limit_conf }};  
+    proxy_pass $upstream_ip;    
+  }
+  #статика ядра
+  location /front {
+   proxy_pass $upstream_ip;
+  }
+  location /captchas {
+   proxy_pass $upstream_ip;
+  }
+  location /files {
+   proxy_pass $upstream_ip;
+  }
+###################################################
+#Роуты к ядру
+###################################################
+  location /my {
+    include {{ nginx_limit_conf }};
+    rewrite ^ /appMy break;
+    proxy_pass $upstream_ip;
+  }  
+  location /license.png {
+    include {{ nginx_limit_conf }};
+    proxy_cache license_img; 
+    proxy_cache_key "$request_uri|$cookie_auth"; 
+    proxy_cache_valid 1d;  
+    rewrite ^/license\.png$ /getGetLicenseData/png-1 break;
+    proxy_pass $upstream_ip;
+  }
+  location /package/order {
+    include {{ nginx_limit_conf }};
+    rewrite ^ /appPrepareShipping break;
+    proxy_pass $upstream_ip;
+  }
+  location /getIsoLink/ {
+    include {{ nginx_limit_conf }};
+    proxy_pass $upstream_ip;
+  }
+  location /invoice/report {
+    include {{ nginx_limit_conf }};
+    if ($request_method = POST) {
+      rewrite ^ /submitInvoiceReport break;
+    }
+    if ($request_method = GET) {
+      rewrite ^ /appInvoiceReport break;
+    }
+    proxy_pass $upstream_ip;
+  }
+  location /payment {
+    include {{ nginx_limit_conf }};
+    rewrite ^ /appPayment break;
+    proxy_pass $upstream_ip;
+  }
+  location ~ ^/getNotifyPmSystemNew/ {
+    proxy_pass $upstream_ip;
+  }
+  location /logout {
+    include {{ nginx_limit_conf }};
+    rewrite ^ /submitLogout break;
+    proxy_pass $upstream_ip;
+  }
+  location /activation {
+    include {{ nginx_limit_conf }};
+    rewrite ^ /appActivation break;
+    proxy_pass $upstream_ip;
+  }
+  location /burn {
+    include {{ nginx_limit_conf }};
+    rewrite ^ /appBurn break;
+    proxy_pass $upstream_ip;
+  }
+
+###################################################
+#support download 
+###################################################
+  location /support/files/ {
+    include {{ nginx_limit_conf }};
+    rewrite ^/support/(.+) /$1 break;
+    expires max;
+    proxy_read_timeout 900s;
+    proxy_set_header Host $host;    
+    proxy_pass https://{{ support_ip }};
+  }
+###################################################
+#abba
+###################################################
+  location /start {
+    proxy_pass http://{{ abba_ip }};
+  }
+  location /complete {
+    proxy_pass http://{{ abba_ip }};
+  }
+  location /v1/abba.js {
+    expires max;
+    proxy_pass http://{{ abba_ip }};
+  }
+###################################################
+#локальная обработка
+###################################################
+  #статику отдаем
+  root /home/webservice/{{ project_path }}/www-static;
+  location =/favicon.ico { }
+  location =/sitemap.xml { }
+  location =/robots.txt { }
+
+  location /min_styles/ {
+    include /home/webservice/nginx/gzip_conf;
+  }
+  location /min_scripts/ {
+    include /home/webservice/nginx/gzip_conf;
+  }
+  location /fonts/ {
+    include /home/webservice/nginx/gzip_conf;
+  }
+  location /site/images/ {
+    include /home/webservice/nginx/gzip_conf;
+    rewrite ^/site/images/(.+) /images/$1 break;
+  }
+  location /images/ {
+    include /home/webservice/nginx/gzip_conf;
+  }
+  location /site/captchas/ {
+    rewrite ^/site/(.+) /$1 break;
+  }
+  location /site/iso/ { }
+  location /admin/styles/ { }
+  location /admin/jss/ { }
+  location /admin/fonts/ { }
+  location /admin/images/ { }
+
+  location /styles/ {
+    include /home/webservice/nginx/gzip_conf;
+  }
+  location /scripts/ { 
+    include /home/webservice/nginx/gzip_conf;
+  }
+  location /pages/ { }
+  location /files/ { }
+  location ~ ^/app {
+    include {{ nginx_limit_conf }};
+    include /home/webservice/nginx/uwsgi_cache_conf;
+    include uwsgi_params;
+    uwsgi_pass unix:///run/uwsgi/app/{{ project_path }}/socket;
+    uwsgi_modifier1 5;
+  }
+  location =/ {
+    include {{ nginx_limit_conf }};
+    include /home/webservice/nginx/uwsgi_cache_conf;
+    include uwsgi_params;
+    uwsgi_pass unix:///run/uwsgi/app/{{ project_path }}/socket;
+    uwsgi_modifier1 5;
+  }
+  location =/index {
+    include {{ nginx_limit_conf }};
+    include /home/webservice/nginx/uwsgi_cache_conf;
+    include uwsgi_params;
+    uwsgi_pass unix:///run/uwsgi/app/{{ project_path }}/socket;
+    uwsgi_modifier1 5;
+  }
+  location / {
+    include {{ nginx_limit_conf }};
+    include uwsgi_params;
+    uwsgi_pass unix:///run/uwsgi/app/{{ project_path }}/socket;
+    uwsgi_modifier1 5;
+  }
+}

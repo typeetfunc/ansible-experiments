@@ -1,0 +1,5 @@
+---
+- name: ensure database is created
+  postgresql_db: name={{dbname}}
+- name: ensure user has access to database
+  postgresql_user: db={{dbname}} name={{dbuser}} password={{dbpassword}} priv=ALL role_attr_flags=SUPERUSER

@@ -1,0 +1,9 @@
+---
+- name: restart nginx
+  file: path=/home/webservice/nginx-restart state=touch
+- name: reload nginx
+  file: path=/home/webservice/nginx-reload state=touch
+- name: restart uwsgi
+  file: path=/home/webservice/uwsgi-restart state=touch
+- name: reload uwsgi
+  file: path=/home/webservice/uwsgi-reload state=touch

@@ -1,0 +1,31 @@
+<VirtualHost 127.0.0.1:{{ apache_listen_port }}>
+  ServerAdmin webmaster@localhost
+  ServerName {{ server_name }}
+  <IfModule mpm_itk_module>
+    AssignUserID {{user}} {{user}}
+  </IfModule>
+  DocumentRoot {{ apache_root }}
+  ErrorDocument 404 /404.html
+  RewriteEngine On
+  RewriteLog /home/{{ user }}/log/rewrite.log
+  <LocationMatch /\.>
+    Order allow,deny
+    deny from all
+  </LocationMatch>
+  <Directory {{ apache_root }}>
+    Options -Indexes FollowSymLinks MultiViews +Includes
+    AllowOverride AuthConfig FileInfo Indexes Limit Options
+    Order allow,deny
+    allow from all
+  </Directory>
+  PerlOptions +ParseHeaders
+  PerlRequire /home/{{ user }}/{{ project_path }}/{{ perl_startup_path }}
+  RedirectMatch permanent ^/$ /appIndex
+  ErrorLog /home/{{ user }}/log/error.log
+  # Possible values include: debug, info, notice, warn, error, crit,
+  # alert, emerg.
+  LogLevel debug
+  CustomLog /home/{{ user }}/log/access.log combined
+  include /home/{{ user }}/{{ project_path }}{{apache_include_path}}
+</VirtualHost>
+include /home/{{ user }}/{{ project_path }}{{apache_include_path}}

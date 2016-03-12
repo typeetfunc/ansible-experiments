@@ -1,0 +1,11 @@
+---
+- name: TEMPLATE | Add AppFrontConfig
+  template: src=EnvConfig.pm.j2 dest=/home/{{ user }}/{{ project_path }}/{{ app_front_conf_path }} owner=webservice group=webservice mode=0755
+  notify: restart uwsgi
+- name: FILE | Add log path
+  file: dest=/home/{{ user }}/log state=directory owner=webservice group=webservice mode=0755
+- name: FILE | Add cache path 
+  file: dest=/var/cache/nginx state=directory owner=www-data group=www-data mode=0755
+- name: TEMPLATE | Add cache conf 
+  template: src=proxy_cache.j2 dest=/etc/nginx/conf.d/cache.conf owner=www-data group=www-data
+  notify: restart nginx

@@ -1,0 +1,6 @@
+---
+graylog_ip: 209.133.212.66
+td_agent_conf: td-agent.conf.j2
+td_agent_version: 2.2.0-0
+td_agent_architecture: i386
+td_tag: "{{ project_path }}.app.devel"

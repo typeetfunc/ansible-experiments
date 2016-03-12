@@ -1,0 +1,189 @@
+limit_conn_zone $binary_remote_addr zone=limit_conn_per_ip:10m;
+limit_req_zone $binary_remote_addr zone=limit_req_per_ip:10m rate=90r/m;
+server {
+  listen 80;
+  access_log /var/log/nginx/access.log;
+  set $upstream_host "{{ nginx_upstream_host }}";
+  set $upstream_ip "http{% if not non_ssl %}s{% endif %}://{{ nginx_upstream_ip }}";
+###################################################
+#проксирование на ядро
+###################################################
+  #ажакс ядра
+  location ~ ^/ajax {   
+    include {{ common_limit_params_file }}; 
+    proxy_pass $upstream_ip;
+  }
+  location ~ ^/app {
+    include {{ common_limit_params_file }}; 
+    proxy_pass $upstream_ip;    
+  }
+  #статика ядра
+  location /front {    
+    proxy_pass $upstream_ip;
+  }
+  location /captchas {    
+    proxy_pass $upstream_ip;
+  }
+  location /files {    
+    include {{ common_limit_params_file }};
+    proxy_pass $upstream_ip;
+  }
+###################################################
+#Роуты к ядру
+###################################################
+  location /my {
+    include {{ common_limit_params_file }};
+    rewrite ^ /appMy break;
+    proxy_pass $upstream_ip;
+  }
+  location /license.png {
+    include {{ common_limit_params_file }}; 
+    rewrite ^/license\.png$ /getGetLicenseData/png-1 break;
+    
+    proxy_pass $upstream_ip;
+  }
+  location /package/order {
+    include {{ common_limit_params_file }}; 
+    rewrite ^ /appPrepareShipping break;
+    proxy_pass $upstream_ip;
+  }
+  location /getIsoLink/ {
+    include {{ common_limit_params_file }}; 
+    proxy_pass $upstream_ip;
+  }
+  location /passwd/new {
+    include {{ common_limit_params_file }}; 
+    rewrite ^ /appPasswordNew break;    
+    proxy_pass $upstream_ip;
+  }
+  location /invoice/report {
+    include {{ common_limit_params_file }}; 
+    if ($request_method = POST) {
+      rewrite ^ /submitInvoiceReport break;
+    }
+    if ($request_method = GET) {
+      rewrite ^ /appInvoiceReport break;
+    }
+    
+    proxy_pass $upstream_ip;
+  }
+  location /payment {
+    include {{ common_limit_params_file }}; 
+    rewrite ^ /appPayment break;
+    
+    proxy_pass $upstream_ip;
+  }
+  location ~ ^/invoice/done {
+    include {{ common_limit_params_file }}; 
+    rewrite ^/invoice/done/(.+) /appInvoiceDone/$1 break;
+    proxy_pass $upstream_ip;
+  }
+  location ~ ^/getNotifyPmSystemNew/ {
+    include {{ common_limit_params_file }}; 
+    proxy_pass $upstream_ip;
+  }
+  location /logout {
+    include {{ common_limit_params_file }}; 
+    rewrite ^ /submitLogout break;    
+    proxy_pass $upstream_ip;
+  }
+  location /feedback {
+    include {{ common_limit_params_file }}; 
+    rewrite ^ /appCreateTicket break;    
+    proxy_pass $upstream_ip;
+  }
+  location /activation {
+    include {{ common_limit_params_file }}; 
+    rewrite ^ /appActivation break;
+    proxy_pass $upstream_ip;
+  }
+  location /burn {
+    include {{ common_limit_params_file }}; 
+    rewrite ^ /appBurn break;
+    
+    proxy_pass $upstream_ip;
+  }
+###################################################
+#support download 
+###################################################
+  location /support/files/ {
+    include {{ common_limit_params_file }}; 
+    rewrite ^/support/(.+) /$1 break;
+    expires max;
+    proxy_read_timeout 900s;
+    proxy_set_header Host $host;    
+    proxy_pass https://{{ support_ip }};
+  }
+###################################################
+#abba
+###################################################
+  location /start {
+    include {{ common_limit_params_file }}; 
+    proxy_pass http://{{ abba_ip }};
+  }
+  location /complete {
+    include {{ common_limit_params_file }}; 
+    proxy_pass http://{{ abba_ip }};
+  }
+  location /v1/abba.js {
+    include {{ common_limit_params_file }}; 
+    expires max;
+    proxy_pass http://{{ abba_ip }};
+  }
+###################################################
+#локальная обработка
+###################################################
+  #статику отдаем
+  root /home/webservice/{{ project_path }}/www-static;
+  location =/favicon.ico { }
+
+  location /min_styles/ {
+    expires max;
+  }
+  location /min_scripts/ {
+    expires max;
+  }
+  location /fonts/ {
+    expires max;
+  }
+  location /site/images/ {
+    rewrite ^/site/images/(.+) /images/$1 break;
+    expires max;
+  }
+  location /images/ {
+    expires max;
+  }
+  location /admin {
+    root /home/webservice/admin/www-static;
+    location /admin/styles/ { 
+      rewrite ^/admin/styles/(.+) /styles/$1 break;
+    }
+    location /admin/scripts/ {
+      rewrite ^/admin/scripts/(.+) /scripts/$1 break; 
+    }
+    location /admin/fonts/ {
+      rewrite ^/admin/fonts/(.+) /fonts/$1 break;
+    }
+    location /admin/images/ {
+      rewrite ^/admin/images/(.+) /images/$1 break;
+    }
+    location /admin {
+      include {{ common_limit_params_file }}; 
+      include uwsgi_params;
+      uwsgi_pass unix:///run/uwsgi/app/admin/socket;
+      uwsgi_modifier1 5;  
+    }
+  }
+
+  location /site/iso/ { }
+  location /styles/ {}
+  location /scripts/ { }
+  location /pages/ { }
+  location /files/ { }
+  location / {
+    include {{ common_limit_params_file }}; 
+    include uwsgi_params;
+    uwsgi_pass unix:///run/uwsgi/app/{{ project_path }}/socket;
+    uwsgi_modifier1 5;
+  }
+}

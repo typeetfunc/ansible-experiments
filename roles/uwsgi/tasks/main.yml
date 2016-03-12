@@ -1,0 +1,11 @@
+---
+- name: Install uwsgi
+  apt: name=uwsgi state=present
+- name: Install psqi module
+  apt: name=uwsgi-plugin-psgi state=present
+- name: create config host
+  template: src={{ item.template }} dest=/etc/uwsgi/apps-available/{{ item.name }}.ini
+  with_items: uwsgi_apps
+- name: Activate config
+  file: src=/etc/uwsgi/apps-available/{{ item.name }}.ini state=link dest=/etc/uwsgi/apps-enabled/{{ item.name }}.ini
+  with_items: uwsgi_apps

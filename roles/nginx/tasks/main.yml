@@ -1,0 +1,44 @@
+---
+- name: APT | Install nginx
+  apt: pkg={{ nginx_package }} state=latest update_cache=yes cache_valid_time=3600
+
+- name: SHELL | Get Nginx version
+  shell: nginx -v 2>&1 | sed -r 's#.*/##;' | cut -d ' ' -f 1
+  register: nginx_version
+  changed_when: false
+
+- name: TEMPLATE | Deploy nginx.conf
+  template: src={{ nginx_conf_template | default('default_nginx_conf.j2') }} dest=/etc/nginx/nginx.conf validate= "nginx -t"
+  notify: restart nginx
+
+- name: TEMPLATE | Create proxy_params
+  template: src={{ nginx_proxy_params }} dest=/etc/nginx/conf.d/proxy_params validate= "nginx -t"
+  when: nginx_proxy_params is defined and nginx_proxy_params
+  notify: restart nginx
+
+- name: TEMPLATE | Create vhosts
+  template: >
+    src={{ item.template }}
+    dest=/etc/nginx/sites-available/{{ item.name }}
+  with_items: nginx_vhosts
+  notify: reload nginx
+  when: item.delete is not defined or not item.delete
+
+- name: FILE | Delete vhosts
+  file: dest=/etc/nginx/sites-enabled/{{ item.name }} state=absent
+  file: dest=/etc/nginx/sites-available/{{ item.name }} state=absent
+  with_items: nginx_vhosts
+  notify: reload nginx
+  when: item.delete is defined and item.delete
+
+- name: FILE | Enable vhosts
+  file: >
+    src=/etc/nginx/sites-available/{{ item.name }}
+    dest=/etc/nginx/sites-enabled/{{ item.name }}
+    state=link
+  with_items: nginx_vhosts
+  notify: reload nginx
+  when: >
+    ((item.enable is not defined) or
+    (item.enable is defined and item.enable)) and
+    (item.delete is not defined or not item.delete)

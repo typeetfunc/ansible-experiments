@@ -1,0 +1,20 @@
+---
+galaxy_info:
+  author: alef
+  description: oem shop install
+  company: your company (optional)
+
+  license: license (GPLv2, CC-BY, etc)
+  min_ansible_version: 1.2
+  platforms:
+  - name: Debian
+    versions:
+      - wheezy
+dependencies:
+    - ansible-usermanage
+    - zzet.postgresql
+    - depends
+    - repo
+    - create_db
+    - uwsgi
+    - nginx

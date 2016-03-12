@@ -1,0 +1,21 @@
+---
+- hosts: not-inited
+  remote_user: webservice
+  gather_facts: no
+  vars:
+    ansible_ssh_port: 22333
+    abba_ip: 209.133.212.68
+    support_ip: 91.231.87.203
+  roles:
+    - oem-shop-init
+  tags: init
+- hosts: all
+  remote_user: webservice
+  gather_facts: no
+  vars:
+    ansible_ssh_port: 22333
+    abba_ip: 209.133.212.68
+    support_ip: 91.231.87.203
+  roles:
+    - oem-shop-update
+  tags: update

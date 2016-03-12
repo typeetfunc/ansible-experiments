@@ -1,0 +1,5 @@
+---
+- name: Restore Dump
+  shell: psql -f /home/{{ user }}/{{ project_path }}/{{ scheme_file }} {{ dbname }} {{ dbuser }}
+- name: Restore Dump data
+  shell: psql -f /home/{{ user }}/{{ project_path }}/{{ data_file }} {{ dbname }} {{ dbuser }}
